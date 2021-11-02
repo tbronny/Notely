@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react"
 import { BrowserRouter as Router } from "react-router-dom"
-import { useHistory } from "react-router"
 import ApplicationViews from "./ApplicationViews"
 import { styled, useTheme } from "@mui/material/styles"
 import Box from "@mui/material/Box"
@@ -24,6 +23,9 @@ import TodayIcon from "@mui/icons-material/Today"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 import TagIcon from "@mui/icons-material/Tag"
 import DateRangeIcon from "@mui/icons-material/DateRange"
+import { getTags } from "../modules/tagManager"
+import AddIcon from "@mui/icons-material/Add"
+import SettingsIcon from "@mui/icons-material/Settings"
 
 const drawerWidth = 240
 
@@ -95,8 +97,11 @@ const Drawer = styled(MuiDrawer, {
 export default function Navigation({ isLoggedIn }) {
     const theme = useTheme()
     const [open, setOpen] = useState(false)
+    const [tags, setTags] = useState([])
 
-    const history = useHistory()
+    useEffect(() => {
+        getTags().then((tags) => setTags(tags))
+    }, [])
 
     const handleDrawerOpen = () => {
         setOpen(true)
@@ -191,33 +196,48 @@ export default function Navigation({ isLoggedIn }) {
                 <Divider />
                 {isLoggedIn && (
                     <List>
-                        {[
-                            "All Notes",
-                            "Tags",
-                            "Groceries",
-                            "Personal",
-                            "Work",
-                        ].map((text, index) => (
-                            <ListItem button key={text}>
+                        <ListItem button key="trash">
+                            <ListItemIcon>
+                                <StickyNote2Icon
+                                    onClick={() => (window.location.href = "/")}
+                                />
+                            </ListItemIcon>
+                            <ListItemText primary="All Notes" />
+                        </ListItem>
+                        {tags.map((tag) => (
+                            <ListItem button key={tag}>
                                 <ListItemIcon>
-                                    {index === 0 ? (
-                                        <StickyNote2Icon
-                                            onClick={() =>
-                                                (window.location.href = "/")
-                                            }
-                                        />
-                                    ) : (
-                                        <TagIcon
-                                            onClick={() =>
-                                                (window.location.href =
-                                                    "/toBeDetermined")
-                                            }
-                                        />
-                                    )}
+                                    <TagIcon
+                                        onClick={() =>
+                                            (window.location.href =
+                                                "/toBeDetermined")
+                                        }
+                                    />
                                 </ListItemIcon>
-                                <ListItemText primary={text} />
+                                <ListItemText primary={tag.name} />
                             </ListItem>
                         ))}
+                        <Divider />
+                        <ListItem button key="addTag">
+                            <ListItemIcon>
+                                <AddIcon
+                                    onClick={() =>
+                                        (window.location.href = "/addTag")
+                                    }
+                                />
+                            </ListItemIcon>
+                            <ListItemText primary="Add Tag" />
+                        </ListItem>
+                        <ListItem button key="managageTag">
+                            <ListItemIcon>
+                                <SettingsIcon
+                                    onClick={() =>
+                                        (window.location.href = "/manageTags")
+                                    }
+                                />
+                            </ListItemIcon>
+                            <ListItemText primary="Manage Tags" />
+                        </ListItem>
                     </List>
                 )}
             </Drawer>

@@ -1,21 +1,21 @@
 import { Button, Card, CardContent } from "@mui/material"
 import React from "react"
 import { Link, useHistory } from "react-router-dom"
-import { deleteNote } from "../../modules/noteManager"
+import { deleteTag } from "../../modules/tagManager"
 
-export default function Note({ note }) {
+export default function Tag({ tag }) {
     const history = useHistory()
 
     const handleDelete = (evt) => {
         evt.preventDefault()
         if (
             window.confirm(
-                `Are you sure you want to delete "${note.title}"? Press OK to confirm.`
+                `Are you sure you want to delete "${tag.name}"? Press OK to confirm.`
             )
         ) {
-            deleteNote(note.id).then(window.location.reload())
+            deleteTag(tag.id).then(window.location.reload())
         } else {
-            history.push("/")
+            history.push("/tag")
         }
     }
 
@@ -23,13 +23,8 @@ export default function Note({ note }) {
         <Card className="m-4">
             <CardContent>
                 <strong>
-                    <Link to={`/note/edit/${note.id}`}>{note.title}</Link>
+                    <Link to={`/tag/edit/${tag.id}`}>{tag.name}</Link>
                 </strong>
-                <p>{note.content}</p>
-                <p>{note.createDateTime}</p>
-                <div className="font-weight-bold">
-                    {note.userProfile.firstName}
-                </div>
                 <Button
                     className="btn btn-danger float-right"
                     onClick={handleDelete}

@@ -31,6 +31,7 @@ namespace Notely
         {
             services.AddTransient<IUserProfileRepository, UserProfileRepository>();
             services.AddTransient<INoteRepository, NoteRepository>();
+            services.AddTransient<ITagRepository, TagRepository>();
 
 
             var firebaseProjectId = Configuration.GetValue<string>("FirebaseProjectId");

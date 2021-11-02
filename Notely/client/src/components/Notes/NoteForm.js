@@ -1,4 +1,15 @@
-import { Button, FormControl, Grid, Input, InputLabel } from "@mui/material"
+import {
+    Button,
+    Dialog,
+    FormControl,
+    Grid,
+    Input,
+    InputLabel,
+    List,
+    ListItem,
+    ListItemText,
+    TextField,
+} from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useHistory, useParams } from "react-router"
 import { addNote, getNoteById, updateNote } from "../../modules/noteManager"
@@ -11,6 +22,7 @@ export default function NoteForm() {
     const [note, setNote] = useState({})
     const [text, setText] = useState("")
     const [isLoading, setIsLoading] = useState(true)
+    const [dialog, setDialog] = useState(false)
     const params = useParams()
 
     useEffect(() => {
@@ -25,7 +37,16 @@ export default function NoteForm() {
     const handleInputChange = (e) => {
         const noteCopy = { ...note }
         noteCopy[e.target.id] = e.target.value
+
+        if (noteCopy.content === "#") {
+            setDialog(true)
+        }
+
         setNote(noteCopy)
+    }
+
+    const handleDialogClose = () => {
+        setDialog(false)
     }
 
     // const editorInputChange = (event, editor) => {
@@ -52,29 +73,46 @@ export default function NoteForm() {
 
     return (
         <Grid>
+            <Dialog className="privateDialog" open={dialog}>
+                <List>
+                    <ListItem button>
+                        <ListItemText primary="Groceries" />
+                    </ListItem>
+                    <ListItem autoFocus button>
+                        <ListItemText primary="Personal" />
+                    </ListItem>
+                    <Button
+                        className="dialog-button"
+                        onClick={handleDialogClose}
+                    >
+                        Close
+                    </Button>
+                </List>
+            </Dialog>
+            <TextField
+                type="text"
+                name="title"
+                id="title"
+                placeholder="Title"
+                value={note.title}
+                onChange={handleInputChange}
+            />
+            <TextField
+                type="date"
+                name="publishDateTime"
+                id="publishDateTime"
+                valid={note.publishDateTime}
+                onChange={handleInputChange}
+            />
             <FormControl fullWidth>
-                <Input
-                    type="text"
-                    name="title"
-                    id="title"
-                    placeholder="Title"
-                    value={note.title}
-                    onChange={handleInputChange}
-                />
-                <textarea
-                    rows="50"
+                <TextField
+                    rows={20}
+                    multiline
                     type="text"
                     name="content"
                     id="content"
                     placeholder="Start writing..."
                     value={note.content}
-                    onChange={handleInputChange}
-                />
-                <Input
-                    type="date"
-                    name="publishDateTime"
-                    id="publishDateTime"
-                    valid={note.publishDateTime}
                     onChange={handleInputChange}
                 />
             </FormControl>

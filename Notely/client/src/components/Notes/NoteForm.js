@@ -7,6 +7,7 @@ import {
     InputLabel,
     List,
     ListItem,
+    ListItemIcon,
     ListItemText,
     TextField,
 } from "@mui/material"
@@ -16,10 +17,13 @@ import { addNote, getNoteById, updateNote } from "../../modules/noteManager"
 import { CKEditor } from "@ckeditor/ckeditor5-react"
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 import parse from "html-react-parser"
+import TagIcon from "@mui/icons-material/Tag"
+import { getTags } from "../../modules/tagManager"
 
 export default function NoteForm() {
     const history = useHistory()
     const [note, setNote] = useState({})
+    const [tags, setTags] = useState([])
     const [text, setText] = useState("")
     const [isLoading, setIsLoading] = useState(true)
     const [dialog, setDialog] = useState(false)
@@ -32,7 +36,10 @@ export default function NoteForm() {
                 setIsLoading(false)
             })
         }
+        getTags().then((tags) => setTags(tags))
     }, [])
+
+    console.log("tags", tags.name)
 
     const handleInputChange = (e) => {
         const noteCopy = { ...note }
@@ -74,20 +81,24 @@ export default function NoteForm() {
     return (
         <Grid>
             <Dialog className="privateDialog" open={dialog}>
-                <List>
-                    <ListItem button>
-                        <ListItemText primary="Groceries" />
-                    </ListItem>
-                    <ListItem autoFocus button>
-                        <ListItemText primary="Personal" />
-                    </ListItem>
-                    <Button
-                        className="dialog-button"
-                        onClick={handleDialogClose}
-                    >
-                        Close
-                    </Button>
-                </List>
+                {tags.map((tag) => (
+                    <List>
+                        <ListItem button key={tag}>
+                            <ListItemIcon>
+                                <TagIcon
+                                    onClick={() =>
+                                        (window.location.href =
+                                            "/toBeDetermined")
+                                    }
+                                />
+                            </ListItemIcon>
+                            <ListItemText primary={tag.name} />
+                        </ListItem>
+                    </List>
+                ))}
+                <Button className="dialog-button" onClick={handleDialogClose}>
+                    Close
+                </Button>
             </Dialog>
             <TextField
                 type="text"

@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace Notely.Models
 {
-    public class Icon
+    public class NoteTag
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public int NoteId { get; set; }
 
-        public string ImageLocation { get; set; }
+        public int TagId { get; set; }
     }
 }

@@ -6,9 +6,12 @@ namespace Notely.Repositories
 {
     public interface INoteRepository
     {
-        List<Note> GetAll(string firebaseUserId);
+        List<Note> GetAll(int id);
         List<Note> GetAllByDateRange(string firebaseUserId, DateTime startDate, DateTime endDate);
+        List<Note> GetAllByTagId(int userId, int tagId);
+        List<Note> GetAllUntagged(int userId);
         Note GetById(int id);
+        void AddTagToNote(int noteId, int tagId);
         void Add(Note note);
         void Update(Note note);
         void Delete(int id);

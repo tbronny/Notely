@@ -16,5 +16,7 @@ namespace Notely.Models
         public string Email { get; set; }
 
         public string FirebaseUserId { get; set; }
+
+        public List<Tag> Tags { get; set; }
     }
 }

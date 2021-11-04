@@ -27,6 +27,11 @@ export default function Note({ note }) {
                 </strong>
                 <p>{note.content}</p>
                 <p>{note.createDateTime}</p>
+                <p>
+                    {note.tags?.map((t) => {
+                        return <p>{t.name}</p>
+                    })}
+                </p>
                 <div className="font-weight-bold">
                     {note.userProfile.firstName}
                 </div>

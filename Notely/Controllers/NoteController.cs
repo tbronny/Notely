@@ -16,6 +16,7 @@ namespace Notely.Controllers
     {
         private readonly INoteRepository _noteRepository;
         private readonly IUserProfileRepository _userProfileRepository;
+
         public NoteController(INoteRepository noteRepository, IUserProfileRepository userProfileRepository)
         {
             _noteRepository = noteRepository;
@@ -26,13 +27,39 @@ namespace Notely.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            //var user = GetCurrentUserProfileId();
-            //if (user == null)
-            //{
-            //    return NotFound();
-            //}
+            var user = GetCurrentUserProfileId();
+            if (user == null)
+            {
+                return NotFound();
+            }
 
-            var notes = _noteRepository.GetAll("Cz2D4DOwCKN7uUdDTyupSFAfZei1");
+            var notes = _noteRepository.GetAll(user.Id);
+            return Ok(notes);
+        }
+
+        [HttpGet("GetAllUntagged")]
+        public IActionResult GetAllUntagged()
+        {
+            var user = GetCurrentUserProfileId();
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var notes = _noteRepository.GetAllUntagged(user.Id);
+            return Ok(notes);
+        }
+
+        [HttpGet("GetByTag/{tagId}")]
+        public IActionResult GetAllByTagId(int tagId)
+        {
+            var user = GetCurrentUserProfileId();
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var notes = _noteRepository.GetAllByTagId(user.Id, tagId);
             return Ok(notes);
         }
 
@@ -91,6 +118,13 @@ namespace Notely.Controllers
                 return NotFound();
             }
             return Ok(note);
+        }
+
+        [HttpPost("AddTagToNote")]
+        public IActionResult AddTagToNote(NoteTag noteTag)
+        {
+            _noteRepository.AddTagToNote(noteTag.NoteId, noteTag.TagId);
+            return Ok();
         }
 
         [HttpPost]

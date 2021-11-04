@@ -18,12 +18,14 @@ namespace Notely.Models
 
         [Required]
         public DateTime CreateDateTime { get; set; }
-        
+
         public DateTime PublishDateTime { get; set; }
 
         [Required]
         public int UserProfileId { get; set; }
 
         public UserProfile UserProfile { get; set; }
+
+        public List<Tag> Tags { get; set; }
     }
 }

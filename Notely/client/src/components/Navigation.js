@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { BrowserRouter as Router } from "react-router-dom"
+import { BrowserRouter as Router, Link } from "react-router-dom"
+import { Switch, Route, Redirect } from "react-router-dom"
 import ApplicationViews from "./ApplicationViews"
 import { styled, useTheme } from "@mui/material/styles"
 import Box from "@mui/material/Box"
@@ -26,6 +27,12 @@ import DateRangeIcon from "@mui/icons-material/DateRange"
 import { getTags } from "../modules/tagManager"
 import AddIcon from "@mui/icons-material/Add"
 import SettingsIcon from "@mui/icons-material/Settings"
+import { getAllNotesByTagId } from "../modules/noteManager"
+import { login, logout } from "../modules/authManager"
+import Login from "./Login"
+import TagList from "./Tags/TagList"
+import Register from "./Register"
+import TagSideBar from "./Tags/TagSideBar"
 
 const drawerWidth = 240
 
@@ -97,11 +104,11 @@ const Drawer = styled(MuiDrawer, {
 export default function Navigation({ isLoggedIn }) {
     const theme = useTheme()
     const [open, setOpen] = useState(false)
-    const [tags, setTags] = useState([])
+    // const [tags, setTags] = useState([])
 
-    useEffect(() => {
-        getTags().then((tags) => setTags(tags))
-    }, [])
+    // useEffect(() => {
+    //     getTags().then((tags) => setTags(tags))
+    // }, [])
 
     const handleDrawerOpen = () => {
         setOpen(true)
@@ -132,7 +139,14 @@ export default function Navigation({ isLoggedIn }) {
                         <Typography variant="h5" noWrap component="div">
                             Notely
                         </Typography>
-                        <Typography variant="h6" noWrap component="div">
+
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component="div"
+                            style={{ cursor: "pointer" }}
+                            onClick={logout}
+                        >
                             Logout
                         </Typography>
                     </Toolbar>
@@ -155,7 +169,8 @@ export default function Navigation({ isLoggedIn }) {
                             <ListItemIcon>
                                 <InboxIcon
                                     onClick={() =>
-                                        (window.location.href = "/newNotes")
+                                        (window.location.href =
+                                            "/GetAllUntagged")
                                     }
                                 />
                             </ListItemIcon>
@@ -194,60 +209,61 @@ export default function Navigation({ isLoggedIn }) {
                     </List>
                 )}
                 <Divider />
-                {isLoggedIn && (
-                    <List>
-                        <ListItem button key="trash">
-                            <ListItemIcon>
-                                <StickyNote2Icon
-                                    onClick={() => (window.location.href = "/")}
-                                />
-                            </ListItemIcon>
-                            <ListItemText primary="All Notes" />
-                        </ListItem>
-                        {tags.map((tag) => (
-                            <ListItem button key={tag}>
-                                <ListItemIcon>
-                                    <TagIcon
-                                        onClick={() =>
-                                            (window.location.href =
-                                                "/toBeDetermined")
-                                        }
-                                    />
-                                </ListItemIcon>
-                                <ListItemText primary={tag.name} />
-                            </ListItem>
-                        ))}
-                        <Divider />
-                        <ListItem button key="addTag">
-                            <ListItemIcon>
-                                <AddIcon
-                                    onClick={() =>
-                                        (window.location.href = "/addTag")
-                                    }
-                                />
-                            </ListItemIcon>
-                            <ListItemText primary="Add Tag" />
-                        </ListItem>
-                        <ListItem button key="managageTag">
-                            <ListItemIcon>
-                                <SettingsIcon
-                                    onClick={() =>
-                                        (window.location.href = "/manageTags")
-                                    }
-                                />
-                            </ListItemIcon>
-                            <ListItemText primary="Manage Tags" />
-                        </ListItem>
-                    </List>
-                )}
+                <List>
+                    <ListItem button key="trash">
+                        <ListItemIcon>
+                            <StickyNote2Icon
+                                onClick={() => (window.location.href = "/")}
+                            />
+                        </ListItemIcon>
+                        <ListItemText primary="All Notes" />
+                    </ListItem>
+
+                    {isLoggedIn && <TagSideBar />}
+                    <Divider />
+                    <ListItem button key="addTag">
+                        <ListItemIcon>
+                            <AddIcon
+                                onClick={() =>
+                                    (window.location.href = "/addTag")
+                                }
+                            />
+                        </ListItemIcon>
+                        <ListItemText primary="Add Tag" />
+                    </ListItem>
+                    <ListItem button key="managageTag">
+                        <ListItemIcon>
+                            <SettingsIcon
+                                onClick={() =>
+                                    (window.location.href = "/manageTags")
+                                }
+                            />
+                        </ListItemIcon>
+                        <ListItemText primary="Manage Tags" />
+                    </ListItem>
+                </List>
             </Drawer>
             <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
-                {isLoggedIn && (
-                    <Router>
-                        <DrawerHeader isLoggedIn={isLoggedIn} />
-                        <ApplicationViews isLoggedIn={isLoggedIn} />
-                    </Router>
-                )}
+                <>
+                    <DrawerHeader />
+                    {isLoggedIn ? (
+                        <ApplicationViews />
+                    ) : (
+                        <Redirect to="login" exact />
+                    )}
+                    <main>
+                        <Switch>
+                            <Route path="/login">
+                                <Login />
+                            </Route>
+                            <Route path="/register">
+                                <Register />
+                            </Route>
+                        </Switch>
+                    </main>
+
+                    {/* // setIsLoggedIn={setIsLoggedIn} */}
+                </>
             </Box>
         </Box>
     )

@@ -3,20 +3,19 @@ import { Switch, Route, Redirect } from "react-router-dom"
 import App from "../Notely"
 import Login from "./Login"
 import NoteByMonth from "./Notes/NoteByMonth"
+import NoteByTagId from "./Notes/NoteByTagId"
 import NoteForm from "./Notes/NoteForm"
 import NoteList from "./Notes/NoteList"
 import TodaysNotes from "./Notes/TodaysNotes"
+import UntaggedNotes from "./Notes/UntaggedNotes"
 import Register from "./Register"
 import TagForm from "./Tags/TagForm"
 import TagList from "./Tags/TagList"
 
-export default function ApplicationViews({ isLoggedIn }) {
+export default function ApplicationViews() {
     return (
         <main>
             <Switch>
-                <Route path="/" exact>
-                    {isLoggedIn ? <NoteList /> : <Redirect to="/login" />}
-                </Route>
                 <Route path="/" exact>
                     <NoteList />
                 </Route>
@@ -25,6 +24,12 @@ export default function ApplicationViews({ isLoggedIn }) {
                 </Route>
                 <Route path="/GetToday" exact>
                     <TodaysNotes />
+                </Route>
+                <Route path="/GetAllUntagged" exact>
+                    <UntaggedNotes />
+                </Route>
+                <Route path="/GetByTag/:tagId" exact>
+                    <NoteByTagId />
                 </Route>
                 <Route path="/addNote" exact>
                     <NoteForm />

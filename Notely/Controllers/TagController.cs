@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Notely.Repositories;
 using Notely.Models;
+using System.Security.Claims;
 
 namespace Notely.Controllers
 {
@@ -14,15 +15,23 @@ namespace Notely.Controllers
     public class TagController : ControllerBase
     {
         private readonly ITagRepository _tagRepository;
+        private readonly IUserProfileRepository _userProfileRepository;
 
-        public TagController(ITagRepository tagRepository)
+        public TagController(ITagRepository tagRepository, IUserProfileRepository userProfileRepository)
         {
             _tagRepository = tagRepository;
+            _userProfileRepository = userProfileRepository;
         }
         [HttpGet]
         public IActionResult Get()
         {
-            var tags = _tagRepository.Get();
+            var user = GetCurrentUserProfileId();
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var tags = _tagRepository.Get(user.Id);
 
             if (tags.Count == 0)
             {
@@ -87,6 +96,12 @@ namespace Notely.Controllers
             {
                 return BadRequest();
             }
+        }
+
+        private UserProfile GetCurrentUserProfileId()
+        {
+            var firebaseUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return _userProfileRepository.GetByFirebaseUserId(firebaseUserId);
         }
     }
 }

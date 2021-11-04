@@ -7,12 +7,8 @@ import FloatingActionButton from "../FloatingActionButton"
 export default function TodaysNotes() {
     const [notes, setNotes] = useState([])
 
-    const getNotes = () => {
-        return getTodaysNotes().then((notes) => setNotes(notes))
-    }
-
     useEffect(() => {
-        getNotes()
+        getTodaysNotes().then((notes) => setNotes(notes))
     }, [])
 
     console.log("notes", notes.title)

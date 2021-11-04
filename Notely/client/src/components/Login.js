@@ -44,6 +44,7 @@ export default function Login() {
     const handleSubmit = (e) => {
         e.preventDefault()
         login(email, password)
+            // .then(setIsLoggedIn(true))
             .then(() => history.push("/"))
             .catch(() => alert("Invalid email or password"))
     }

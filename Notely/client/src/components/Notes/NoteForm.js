@@ -13,7 +13,12 @@ import {
 } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useHistory, useParams } from "react-router"
-import { addNote, getNoteById, updateNote } from "../../modules/noteManager"
+import {
+    addNote,
+    getNoteById,
+    updateNote,
+    addTagToNote,
+} from "../../modules/noteManager"
 import { CKEditor } from "@ckeditor/ckeditor5-react"
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 import parse from "html-react-parser"
@@ -28,10 +33,11 @@ export default function NoteForm() {
     const [isLoading, setIsLoading] = useState(true)
     const [dialog, setDialog] = useState(false)
     const params = useParams()
+    const noteId = params.id
 
     useEffect(() => {
-        if (params.id) {
-            getNoteById(params.id).then((n) => {
+        if (noteId) {
+            getNoteById(noteId).then((n) => {
                 setNote(n)
                 setIsLoading(false)
             })
@@ -39,13 +45,11 @@ export default function NoteForm() {
         getTags().then((tags) => setTags(tags))
     }, [])
 
-    console.log("tags", tags.name)
-
     const handleInputChange = (e) => {
         const noteCopy = { ...note }
         noteCopy[e.target.id] = e.target.value
 
-        if (noteCopy.content === "#") {
+        if (noteCopy.content.includes("#")) {
             setDialog(true)
         }
 
@@ -64,9 +68,18 @@ export default function NoteForm() {
     //     setNote(noteCopy)
     // }
 
+    const handleTagSave = (tagId) => {
+        addTagToNote({
+            noteId: noteId,
+            tagId: tagId,
+        }).then(() => handleDialogClose())
+    }
+
+    console.log(note.id)
+
     const handleSave = (e) => {
         e.preventDefault()
-        if (params.id) {
+        if (noteId) {
             setIsLoading(true)
             updateNote(note).then(() => {
                 history.push("/")
@@ -83,14 +96,9 @@ export default function NoteForm() {
             <Dialog className="privateDialog" open={dialog}>
                 {tags.map((tag) => (
                     <List>
-                        <ListItem button key={tag}>
+                        <ListItem button onClick={() => handleTagSave(tag.id)}>
                             <ListItemIcon>
-                                <TagIcon
-                                    onClick={() =>
-                                        (window.location.href =
-                                            "/toBeDetermined")
-                                    }
-                                />
+                                <TagIcon />
                             </ListItemIcon>
                             <ListItemText primary={tag.name} />
                         </ListItem>

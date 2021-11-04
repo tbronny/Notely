@@ -19,6 +19,40 @@ export const getAllNotes = () => {
     })
 }
 
+export const getAllUntagged = () => {
+    return getToken().then((token) => {
+        return fetch(apiUrl + "/GetAllUntagged", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then((res) => {
+            if (res.ok) {
+                return res.json()
+            } else {
+                throw new Error("ERROR IN GETTING Notes")
+            }
+        })
+    })
+}
+
+export const getAllNotesByTagId = (tagId) => {
+    return getToken().then((token) => {
+        return fetch(`${apiUrl}/GetByTag/${tagId}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then((res) => {
+            if (res.ok) {
+                return res.json()
+            } else {
+                throw new Error("ERROR IN GETTING Notes")
+            }
+        })
+    })
+}
+
 export const getNotesByRange = () => {
     return getToken().then((token) => {
         return fetch(`${apiUrl}/GetByMonth`, {
@@ -66,6 +100,19 @@ export const getNoteById = (id) => {
             } else {
                 throw new Error("ERROR GETTING NOTE BY ID")
             }
+        })
+    })
+}
+
+export const addTagToNote = (noteTag) => {
+    return getToken().then((token) => {
+        return fetch(`${apiUrl}/addTagToNote`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(noteTag),
         })
     })
 }

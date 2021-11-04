@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from "react"
 import Note from "./Note"
-import { getNotesByRange } from "../../modules/noteManager"
+import { getAllUntagged, getNotesByRange } from "../../modules/noteManager"
 import { useHistory, useParams } from "react-router"
 import FloatingActionButton from "../FloatingActionButton"
 
-export default function NoteByMonth() {
+export default function UntaggedNotes() {
     const [notes, setNotes] = useState([])
 
-    const getNotes = () => {
-        return getNotesByRange().then((notes) => setNotes(notes))
-    }
-
     useEffect(() => {
-        getNotes()
+        getAllUntagged().then((notes) => setNotes(notes))
     }, [])
 
     return (

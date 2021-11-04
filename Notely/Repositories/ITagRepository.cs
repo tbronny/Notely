@@ -7,7 +7,7 @@ namespace Notely.Repositories
     {
         void Add(Tag tag);
         void Delete(int id);
-        List<Tag> Get();
+        List<Tag> Get(int userProfileId);
         Tag GetById(int id);
         void Update(Tag tag);
     }

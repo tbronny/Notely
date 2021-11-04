@@ -13,7 +13,7 @@ namespace Notely.Repositories
     {
         public NoteRepository(IConfiguration configuration) : base(configuration) { }
 
-        public List<Note> GetAll(string firebaseUserId)
+        public List<Note> GetAll(int id)
         {
             using (var conn = Connection)
             {
@@ -22,29 +22,66 @@ namespace Notely.Repositories
                 {
                     cmd.CommandText = @"
                        SELECT n.Id, n.Title, n.Content,
-                              n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
-                              u.FirstName, u.LastName, u.Email, u.FirebaseUserId
+                            n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
+                            u.FirstName, u.LastName, u.Email, 
+                            t.Id [noteTagId], t.[Name], nt.NoteId, nt.TagId
                          FROM Note n
-                              LEFT JOIN UserProfile u ON n.UserProfileId = u.id
-                        WHERE u.FirebaseUserId = @FirebaseUserId
+                            LEFT JOIN UserProfile u ON n.UserProfileId = u.id
+                            LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
+                            LEFT JOIN Tag t On nt.TagId = t.Id
+                        WHERE u.Id = @UserProfileId
                         ORDER BY n.CreateDateTime DESC";
 
-                    DbUtils.AddParameter(cmd, "@FirebaseUserId", firebaseUserId);
+                    DbUtils.AddParameter(cmd, "@UserProfileId", id);
                     var reader = cmd.ExecuteReader();
 
                     var notes = new List<Note>();
 
                     while (reader.Read())
                     {
-                        notes.Add(NewNoteFromReader(reader));
-                    }
+                        var noteId = reader.GetInt32(reader.GetOrdinal("Id"));
+                        var existingNote = notes.FirstOrDefault(n => n.Id == noteId);
 
+                        if ( existingNote == null)
+                        {
+                            existingNote = new Note()
+                            {
+                                Id = noteId,
+                                Title = reader.GetString(reader.GetOrdinal("Title")),
+                                Content = reader.GetString(reader.GetOrdinal("Content")),
+                                CreateDateTime = reader.GetDateTime(reader.GetOrdinal("CreateDateTime")),
+                                PublishDateTime = (DateTime)DbUtils.GetNullableDateTime(reader, "PublishDateTime"),
+
+                                UserProfileId = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                UserProfile = new UserProfile()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                    FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                    LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                                },
+                                Tags = new List<Tag>()
+                            };
+
+                        notes.Add(existingNote);
+                        }
+                        if (DbUtils.IsNotDbNull(reader, "Name"))
+                        {
+                            existingNote.Tags.Add(new Tag()
+                            {
+                                Name = DbUtils.GetString(reader, "Name")
+                            });
+                        }
+                        
+                    }
                     reader.Close();
 
                     return notes;
                 }
             }
         }
+
+
 
         public List<Note> GetAllByDateRange(string firebaseUserId, DateTime startDate, DateTime endDate)
         {
@@ -58,6 +95,8 @@ namespace Notely.Repositories
                                 n.UserProfileId, u.Id [UserProfileId], u.FirstName, u.LastName, u.Email
                             FROM Note n
                             LEFT JOIN [UserProfile] u ON n.UserProfileId = u.Id 
+                                LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
+                                LEFT JOIN Tag t On nt.TagId = t.Id
                             WHERE u.FirebaseUserId = @FirebaseUserId 
                                 AND n.CreateDateTime >= @startDate AND n.CreateDateTime <= @endDate";
 
@@ -80,6 +119,145 @@ namespace Notely.Repositories
             }
         }
 
+        public List<Note> GetAllByTagId(int userId, int tagId)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                       SELECT n.Id, n.Title, n.Content,
+                              n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
+                              u.FirstName, u.LastName, u.Email, 
+                              t.Id, t.[Name], nt.NoteId, nt.TagId
+                         FROM Note n
+                              LEFT JOIN UserProfile u ON n.UserProfileId = u.id
+                                LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
+                                LEFT JOIN Tag t On nt.TagId = t.Id
+                        WHERE u.Id = @UserProfileId AND nt.TagId = @TagId
+                        ORDER BY n.CreateDateTime DESC";
+
+                    DbUtils.AddParameter(cmd, "@UserProfileId", userId);
+                    DbUtils.AddParameter(cmd, "@TagId", tagId);
+                    var reader = cmd.ExecuteReader();
+
+                    var notes = new List<Note>();
+
+                    while (reader.Read())
+                    {
+                        var noteId = reader.GetInt32(reader.GetOrdinal("Id"));
+                        var existingNote = notes.FirstOrDefault(n => n.Id == noteId);
+
+                        if (existingNote == null)
+                        {
+                            existingNote = new Note()
+                            {
+                                Id = noteId,
+                                Title = reader.GetString(reader.GetOrdinal("Title")),
+                                Content = reader.GetString(reader.GetOrdinal("Content")),
+                                CreateDateTime = reader.GetDateTime(reader.GetOrdinal("CreateDateTime")),
+                                PublishDateTime = (DateTime)DbUtils.GetNullableDateTime(reader, "PublishDateTime"),
+
+                                UserProfileId = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                UserProfile = new UserProfile()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                    FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                    LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                                },
+                                Tags = new List<Tag>()
+                            };
+
+                            notes.Add(existingNote);
+                        }
+                        if (DbUtils.IsNotDbNull(reader, "Name"))
+                        {
+                            existingNote.Tags.Add(new Tag()
+                            {
+                                Name = DbUtils.GetString(reader, "Name")
+                            });
+                        }
+
+                    }
+
+                    reader.Close();
+
+                    return notes;
+                }
+            }
+        }
+
+        public List<Note> GetAllUntagged(int userId)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                       SELECT n.Id, n.Title, n.Content,
+                              n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
+                              u.FirstName, u.LastName, u.Email, 
+                              t.Id, t.[Name], nt.NoteId, nt.TagId
+                         FROM Note n
+                              LEFT JOIN UserProfile u ON n.UserProfileId = u.id
+                                LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
+                                LEFT JOIN Tag t On nt.TagId = t.Id
+                        WHERE u.Id = @UserProfileId AND nt.TagId IS NULL
+                        ORDER BY n.CreateDateTime DESC";
+
+                    DbUtils.AddParameter(cmd, "@UserProfileId", userId);
+                    var reader = cmd.ExecuteReader();
+
+                    var notes = new List<Note>();
+
+                    while (reader.Read())
+                    {
+                        var noteId = reader.GetInt32(reader.GetOrdinal("Id"));
+                        var existingNote = notes.FirstOrDefault(n => n.Id == noteId);
+
+                        if (existingNote == null)
+                        {
+                            existingNote = new Note()
+                            {
+                                Id = noteId,
+                                Title = reader.GetString(reader.GetOrdinal("Title")),
+                                Content = reader.GetString(reader.GetOrdinal("Content")),
+                                CreateDateTime = reader.GetDateTime(reader.GetOrdinal("CreateDateTime")),
+                                PublishDateTime = (DateTime)DbUtils.GetNullableDateTime(reader, "PublishDateTime"),
+
+                                UserProfileId = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                UserProfile = new UserProfile()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                    FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                    LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                                },
+                                Tags = new List<Tag>()
+                            };
+
+                            notes.Add(existingNote);
+                        }
+                        if (DbUtils.IsNotDbNull(reader, "Name"))
+                        {
+                            existingNote.Tags.Add(new Tag()
+                            {
+                                Name = DbUtils.GetString(reader, "Name")
+                            });
+                        }
+
+                    }
+
+                    reader.Close();
+
+                    return notes;
+                }
+            }
+        }
+
         public Note GetById(int id)
         {
             using (var conn = Connection)
@@ -90,25 +268,59 @@ namespace Notely.Repositories
                     cmd.CommandText = @"
                        SELECT n.Id, n.Title, n.Content, 
                               n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
-                              u.FirstName, u.LastName, u.Email
+                              u.FirstName, u.LastName, u.Email, t.[Name]
                          FROM Note n
                               LEFT JOIN UserProfile u ON n.UserProfileId = u.id
-                        WHERE n.Id = @id
-                        ";
+                                LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
+                                LEFT JOIN Tag t On nt.TagId = t.Id
+                        WHERE n.Id = @id";
 
                     DbUtils.AddParameter(cmd, "@id", id);
                     var reader = cmd.ExecuteReader();
 
                     Note note = null;
 
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        note = (NewNoteFromReader(reader));
+                        if (note == null)
+                        {
+                            note = (NewNoteFromReader(reader));
+
+                        }
+
+                        if(DbUtils.IsNotDbNull(reader, "Name"))
+                        {
+                            note.Tags.Add(new Tag
+                            {
+                                Name = DbUtils.GetString(reader, "Name")
+                            });
+                        }
                     }
 
                     reader.Close();
 
                     return note;
+                }
+            }
+        }
+
+        public void AddTagToNote(int noteId, int tagId)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                       INSERT INTO NoteTag (NoteId, TagId)
+                    OUTPUT INSERTED.ID VALUES (@NoteId, @TagId)
+                        ";
+
+                    DbUtils.AddParameter(cmd, "@NoteId", noteId);
+                    DbUtils.AddParameter(cmd, "@TagId", tagId);
+
+                    cmd.ExecuteScalar();
+
                 }
             }
         }
@@ -198,7 +410,9 @@ namespace Notely.Repositories
                     FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                     LastName = reader.GetString(reader.GetOrdinal("LastName")),
                     Email = reader.GetString(reader.GetOrdinal("Email")),
-                }
+                },
+                Tags = new List<Tag>()
+
 
             };
             return note;

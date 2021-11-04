@@ -11,8 +11,8 @@ namespace Notely.Models
         
         public string Name { get; set; }
 
-        public int IconId { get; set; }
+        public int UserProfileId { get; set; }
 
-        public Icon Icon { get; set; }
+        public UserProfile UserProfile { get; set; }
     }
 }

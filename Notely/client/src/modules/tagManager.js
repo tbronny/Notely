@@ -14,17 +14,27 @@ export const getTags = () => {
 }
 
 export const getTagById = (id) => {
-    return fetch(`${_apiUrl}/${id}`).then((res) => res.json())
+    return getToken().then((token) => {
+        return fetch(`${_apiUrl}/${id}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then((res) => res.json())
+    })
 }
 
 export const addTag = (tag) => {
-    return fetch(_apiUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(tag),
-    }).then(getTags())
+    return getToken().then((token) => {
+        return fetch(_apiUrl, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(tag),
+        }).then(getTags())
+    })
 }
 
 export const deleteTag = (id) => {
@@ -34,11 +44,16 @@ export const deleteTag = (id) => {
 }
 
 export const updateTag = (tag) => {
-    return fetch(_apiUrl, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(tag),
-    }).then(getTags())
+    return getToken()
+        .then((token) => {
+            return fetch(_apiUrl, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(tag),
+            })
+        })
+        .then(getTags())
 }

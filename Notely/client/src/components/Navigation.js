@@ -165,7 +165,7 @@ export default function Navigation({ isLoggedIn }) {
                 <Divider />
                 {isLoggedIn && (
                     <List>
-                        <ListItem button key="inbox">
+                        <ListItem button key="Untagged">
                             <ListItemIcon>
                                 <InboxIcon
                                     onClick={() =>
@@ -174,7 +174,7 @@ export default function Navigation({ isLoggedIn }) {
                                     }
                                 />
                             </ListItemIcon>
-                            <ListItemText primary="Inbox" />
+                            <ListItemText primary="Untagged" />
                         </ListItem>
                         <ListItem button key="today">
                             <ListItemIcon>

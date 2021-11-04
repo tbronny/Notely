@@ -127,6 +127,16 @@ namespace Notely.Controllers
             return Ok();
         }
 
+        [HttpDelete("DeleteTagFromNote/{noteId}/{tagId}")]
+        public IActionResult DeleteNoteTag(int noteId, int tagId)
+        {
+
+            var matchingNoteTag = _noteRepository.GetIdOfNoteTag(noteId, tagId);
+            
+            _noteRepository.DeleteTagFromNote(matchingNoteTag.Id);
+            return NoContent();
+        }
+
         [HttpPost]
         public IActionResult Post(Note note)
         {

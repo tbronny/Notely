@@ -18,12 +18,14 @@ import {
     getNoteById,
     updateNote,
     addTagToNote,
+    deleteTagFromNote,
 } from "../../modules/noteManager"
 import { CKEditor } from "@ckeditor/ckeditor5-react"
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 import parse from "html-react-parser"
 import TagIcon from "@mui/icons-material/Tag"
 import { getTags } from "../../modules/tagManager"
+import NoteByTagId from "./NoteByTagId"
 
 export default function NoteForm() {
     const history = useHistory()
@@ -32,6 +34,7 @@ export default function NoteForm() {
     const [text, setText] = useState("")
     const [isLoading, setIsLoading] = useState(true)
     const [dialog, setDialog] = useState(false)
+    const [deleteDialog, setDeleteDialog] = useState(false)
     const params = useParams()
     const noteId = params.id
 
@@ -49,11 +52,15 @@ export default function NoteForm() {
         const noteCopy = { ...note }
         noteCopy[e.target.id] = e.target.value
 
-        if (noteCopy.content.includes("#")) {
+        if (noteId && noteCopy.content && noteCopy.content.includes("#")) {
             setDialog(true)
         }
 
         setNote(noteCopy)
+    }
+
+    const handleDeleteDialogClose = () => {
+        setDeleteDialog(false)
     }
 
     const handleDialogClose = () => {
@@ -69,10 +76,20 @@ export default function NoteForm() {
     // }
 
     const handleTagSave = (tagId) => {
-        addTagToNote({
-            noteId: noteId,
-            tagId: tagId,
-        }).then(() => handleDialogClose())
+        if (noteId) {
+            addTagToNote({
+                noteId: noteId,
+                tagId: tagId,
+            }).then(() => handleDialogClose())
+        }
+    }
+
+    const handleOpenDeleteTag = () => {
+        setDeleteDialog(true)
+    }
+
+    const handleTagDelete = (noteId, tagId) => {
+        deleteTagFromNote(noteId, tagId).then(() => handleDeleteDialogClose())
     }
 
     console.log(note.id)
@@ -105,6 +122,27 @@ export default function NoteForm() {
                     </List>
                 ))}
                 <Button className="dialog-button" onClick={handleDialogClose}>
+                    Close
+                </Button>
+            </Dialog>
+            <Dialog className="privateDialog" open={deleteDialog}>
+                {tags.map((tag) => (
+                    <List>
+                        <ListItem
+                            button
+                            onClick={() => handleTagDelete(noteId, tag.id)}
+                        >
+                            <ListItemIcon>
+                                <TagIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={tag.name} />
+                        </ListItem>
+                    </List>
+                ))}
+                <Button
+                    className="dialog-button"
+                    onClick={handleDeleteDialogClose}
+                >
                     Close
                 </Button>
             </Dialog>
@@ -143,8 +181,16 @@ export default function NoteForm() {
                 onChange={editorInputChange}
             /> */}
             <Button className="btn btn-primary" onClick={handleSave}>
-                Submit
+                {noteId ? "Update" : "Add Note"}
             </Button>
+            {noteId && (
+                <Button
+                    className="btn btn-primary"
+                    onClick={handleOpenDeleteTag}
+                >
+                    Remove Tag
+                </Button>
+            )}
         </Grid>
     )
 }

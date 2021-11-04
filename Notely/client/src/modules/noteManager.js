@@ -117,6 +117,18 @@ export const addTagToNote = (noteTag) => {
     })
 }
 
+export const deleteTagFromNote = (noteId, tagId) => {
+    return getToken().then((token) => {
+        return fetch(`${apiUrl}/DeleteTagFromNote/${noteId}/${tagId}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        })
+    })
+}
+
 export const addNote = (note) => {
     return getToken().then((token) => {
         return fetch(apiUrl, {

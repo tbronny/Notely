@@ -58,6 +58,9 @@ namespace Notely.Controllers
         [HttpPost]
         public IActionResult Post(Tag tag)
         {
+            var user = GetCurrentUserProfileId();
+
+            tag.UserProfileId = user.Id;
             try
             {
                 _tagRepository.Add(tag);
@@ -70,8 +73,14 @@ namespace Notely.Controllers
             }
         }
         [HttpPut]
-        public IActionResult Update(Tag tag)
+        public IActionResult Update(int id, Tag tag)
         {
+            var user = GetCurrentUserProfileId();
+            if (id != tag.Id)
+            {
+                return BadRequest();
+            }
+            tag.UserProfileId = user.Id;
             try
             {
                 _tagRepository.Update(tag);

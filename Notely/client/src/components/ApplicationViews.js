@@ -46,6 +46,7 @@ export default function ApplicationViews() {
                 <Route path="/tag/edit/:id" exact>
                     <TagForm />
                 </Route>
+
                 <Route path="/login">
                     <Login />
                 </Route>

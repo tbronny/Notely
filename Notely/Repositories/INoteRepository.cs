@@ -11,7 +11,9 @@ namespace Notely.Repositories
         List<Note> GetAllByTagId(int userId, int tagId);
         List<Note> GetAllUntagged(int userId);
         Note GetById(int id);
+        NoteTag GetIdOfNoteTag(int noteId, int tagId);
         void AddTagToNote(int noteId, int tagId);
+        void DeleteTagFromNote(int id);
         void Add(Note note);
         void Update(Note note);
         void Delete(int id);

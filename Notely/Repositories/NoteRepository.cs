@@ -21,10 +21,11 @@ namespace Notely.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                       SELECT n.Id, n.Title, n.Content,
+                       SELECT n.Id [NoteId], n.Title, n.Content,
                             n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
                             u.FirstName, u.LastName, u.Email, 
-                            t.Id [noteTagId], t.[Name], nt.NoteId, nt.TagId
+                            t.Id [TagId], t.[Name], t.UserProfileId,
+                            nt.NoteId [NoteTagNoteId], nt.TagId [NoteTagId]
                          FROM Note n
                             LEFT JOIN UserProfile u ON n.UserProfileId = u.id
                             LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
@@ -39,10 +40,10 @@ namespace Notely.Repositories
 
                     while (reader.Read())
                     {
-                        var noteId = reader.GetInt32(reader.GetOrdinal("Id"));
+                        var noteId = reader.GetInt32(reader.GetOrdinal("NoteId"));
                         var existingNote = notes.FirstOrDefault(n => n.Id == noteId);
 
-                        if ( existingNote == null)
+                        if (existingNote == null)
                         {
                             existingNote = new Note()
                             {
@@ -63,16 +64,17 @@ namespace Notely.Repositories
                                 Tags = new List<Tag>()
                             };
 
-                        notes.Add(existingNote);
+                            notes.Add(existingNote);
                         }
                         if (DbUtils.IsNotDbNull(reader, "Name"))
                         {
                             existingNote.Tags.Add(new Tag()
                             {
+                                Id = DbUtils.GetInt(reader, "TagId"),
                                 Name = DbUtils.GetString(reader, "Name")
                             });
                         }
-                        
+
                     }
                     reader.Close();
 
@@ -91,12 +93,15 @@ namespace Notely.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                            SELECT n.Id, n.Title, n.Content, n.CreateDateTime, n.PublishDateTime, 
-                                n.UserProfileId, u.Id [UserProfileId], u.FirstName, u.LastName, u.Email
-                            FROM Note n
-                            LEFT JOIN [UserProfile] u ON n.UserProfileId = u.Id 
-                                LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
-                                LEFT JOIN Tag t On nt.TagId = t.Id
+                            SELECT n.Id [NoteId], n.Title, n.Content,
+                            n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
+                            u.FirstName, u.LastName, u.Email, 
+                            t.Id [TagId], t.[Name], t.UserProfileId,
+                            nt.NoteId [NoteTagNoteId], nt.TagId [NoteTagId]
+                         FROM Note n
+                            LEFT JOIN UserProfile u ON n.UserProfileId = u.id
+                            LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
+                            LEFT JOIN Tag t On nt.TagId = t.Id
                             WHERE u.FirebaseUserId = @FirebaseUserId 
                                 AND n.CreateDateTime >= @startDate AND n.CreateDateTime <= @endDate";
 
@@ -109,7 +114,41 @@ namespace Notely.Repositories
 
                     while (reader.Read())
                     {
-                        notes.Add(NewNoteFromReader(reader));
+                        var noteId = reader.GetInt32(reader.GetOrdinal("NoteId"));
+                        var existingNote = notes.FirstOrDefault(n => n.Id == noteId);
+
+                        if (existingNote == null)
+                        {
+                            existingNote = new Note()
+                            {
+                                Id = noteId,
+                                Title = reader.GetString(reader.GetOrdinal("Title")),
+                                Content = reader.GetString(reader.GetOrdinal("Content")),
+                                CreateDateTime = reader.GetDateTime(reader.GetOrdinal("CreateDateTime")),
+                                PublishDateTime = (DateTime)DbUtils.GetNullableDateTime(reader, "PublishDateTime"),
+
+                                UserProfileId = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                UserProfile = new UserProfile()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                    FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                    LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                                },
+                                Tags = new List<Tag>()
+                            };
+
+                            notes.Add(existingNote);
+                        }
+                        if (DbUtils.IsNotDbNull(reader, "Name"))
+                        {
+                            existingNote.Tags.Add(new Tag()
+                            {
+                                Id = DbUtils.GetInt(reader, "TagId"),
+                                Name = DbUtils.GetString(reader, "Name")
+                            });
+                        }
+
                     }
 
                     reader.Close();
@@ -241,6 +280,7 @@ namespace Notely.Repositories
 
                             notes.Add(existingNote);
                         }
+
                         if (DbUtils.IsNotDbNull(reader, "Name"))
                         {
                             existingNote.Tags.Add(new Tag()
@@ -268,7 +308,7 @@ namespace Notely.Repositories
                     cmd.CommandText = @"
                        SELECT n.Id, n.Title, n.Content, 
                               n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
-                              u.FirstName, u.LastName, u.Email, t.[Name]
+                              u.FirstName, u.LastName, u.Email, t.[Name], nt.Id [NoteTagId]
                          FROM Note n
                               LEFT JOIN UserProfile u ON n.UserProfileId = u.id
                                 LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
@@ -304,6 +344,39 @@ namespace Notely.Repositories
             }
         }
 
+        public NoteTag GetIdOfNoteTag(int noteId, int tagId)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                       SELECT nt.Id 
+                        FROM NoteTag nt
+                        WHERE nt.TagId = @TagId AND nt.NoteId = @NoteId  ";
+
+                    DbUtils.AddParameter(cmd, "@TagId", tagId);
+                    DbUtils.AddParameter(cmd, "@NoteId", noteId);
+                    var reader = cmd.ExecuteReader();
+
+                    NoteTag noteTag = null;
+
+                    if (reader.Read())
+                    {
+                        noteTag = new NoteTag()
+                        {
+                            Id = DbUtils.GetInt(reader, "Id")
+                        };
+                    };
+
+                    reader.Close();
+
+                    return noteTag;
+                }
+            }
+        }
+
         public void AddTagToNote(int noteId, int tagId)
         {
             using (var conn = Connection)
@@ -312,8 +385,8 @@ namespace Notely.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                       INSERT INTO NoteTag (NoteId, TagId)
-                    OUTPUT INSERTED.ID VALUES (@NoteId, @TagId)
+                        INSERT INTO NoteTag (NoteId, TagId)
+                        OUTPUT INSERTED.ID VALUES (@NoteId, @TagId)
                         ";
 
                     DbUtils.AddParameter(cmd, "@NoteId", noteId);
@@ -321,6 +394,20 @@ namespace Notely.Repositories
 
                     cmd.ExecuteScalar();
 
+                }
+            }
+        }
+
+        public void DeleteTagFromNote(int id)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "DELETE FROM NoteTag WHERE Id = @Id";
+                    DbUtils.AddParameter(cmd, "@Id", id);
+                    cmd.ExecuteNonQuery();
                 }
             }
         }

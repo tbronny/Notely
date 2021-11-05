@@ -1,11 +1,12 @@
+import { Input } from "@mui/material"
 import React from "react"
 import { search } from "../../modules/noteManager"
 
 const NoteSearch = ({ filteredNotes }) => {
     return (
         <>
-            Note search:{" "}
-            <input
+            <Input
+                fullWidth
                 type="text"
                 className="input--wide"
                 onKeyUp={(event) =>

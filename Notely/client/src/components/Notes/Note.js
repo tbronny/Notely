@@ -9,7 +9,7 @@ import {
 } from "@mui/material"
 import React from "react"
 import { Link, useHistory } from "react-router-dom"
-
+import { red } from "@mui/material/colors"
 import parse from "html-react-parser"
 import { DeleteOutlined } from "@mui/icons-material"
 
@@ -27,7 +27,7 @@ export default function Note({ note, handleDelete }) {
                                     return handleDelete(note.id)
                             }}
                         >
-                            <DeleteOutlined />
+                            <DeleteOutlined sx={{ color: red[400] }} />
                         </IconButton>
                     }
                     title={note.title}

@@ -12,7 +12,7 @@ export default function FloatingActionButton() {
             sx={{ position: "fixed", bottom: "0", right: "0", padding: "2em" }}
         >
             <Fab
-                color="secondary"
+                color="primary"
                 aria-label="edit"
                 onClick={() => {
                     history.push("/addNote")

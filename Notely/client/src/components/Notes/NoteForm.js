@@ -69,10 +69,7 @@ export default function NoteForm() {
 
     // const editorInputChange = (event, editor) => {
     //     const data = editor.getData()
-    //     setNote(data)
-    //     const noteCopy = { ...note.content }
-    //     noteCopy[event.target.id] = event.target.value
-    //     setNote(noteCopy)
+    //     setText(data)
     // }
 
     const handleTagSave = (tagId) => {
@@ -98,11 +95,24 @@ export default function NoteForm() {
         e.preventDefault()
         if (noteId) {
             setIsLoading(true)
-            updateNote(note).then(() => {
+            updateNote({
+                id: parseInt(noteId),
+                title: note.title,
+                content: parse(note.content),
+                createDateTime: note.createDateTime,
+                publishDateTime: note.publishDateTime,
+                userId: note.userId,
+            }).then(() => {
                 history.push("/")
             })
         } else {
-            addNote(note).then(() => {
+            addNote({
+                title: note.title,
+                content: note.content,
+                createDateTime: note.createDateTime,
+                publishDateTime: note.publishDateTime,
+                userId: note.userId,
+            }).then(() => {
                 history.push("/")
             })
         }
@@ -172,14 +182,15 @@ export default function NoteForm() {
                     value={note.content}
                     onChange={handleInputChange}
                 />
+                {/* <CKEditor
+                    editor={ClassicEditor}
+                    id="content"
+                    placeholder="Start writing..."
+                    data={text}
+                    value={text}
+                    onChange={editorInputChange}
+                /> */}
             </FormControl>
-            {/* <CKEditor
-                editor={ClassicEditor}
-                id="content"
-                data={text}
-                value={note.content}
-                onChange={editorInputChange}
-            /> */}
             <Button className="btn btn-primary" onClick={handleSave}>
                 {noteId ? "Update" : "Add Note"}
             </Button>

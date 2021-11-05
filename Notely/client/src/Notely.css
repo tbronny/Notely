@@ -31,7 +31,6 @@
 .ck-editor__editable_inline {
     min-height: 500px;
 }
-
 @keyframes App-logo-spin {
     from {
         transform: rotate(0deg);

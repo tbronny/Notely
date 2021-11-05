@@ -6,9 +6,7 @@ import { addTag, getTagById, updateTag } from "../../modules/tagManager"
 
 export default function TagForm() {
     const history = useHistory()
-    const [tag, setTag] = useState({
-        name: "",
-    })
+    const [tag, setTag] = useState({})
 
     const params = useParams()
 
@@ -42,14 +40,9 @@ export default function TagForm() {
 
         if (tagId) {
             setIsLoading(true)
-            updateTag({
-                id: parseInt(tagId),
-                name: tag.name,
-            }).then(() => history.push("/tag"))
+            updateTag(tag).then(() => history.push("/manageTags"))
         } else {
-            addTag({
-                name: tag.name,
-            }).then(() => history.push("/tag"))
+            addTag(tag).then(() => history.push("/manageTags"))
         }
     }
 

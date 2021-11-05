@@ -22,15 +22,11 @@ import InboxIcon from "@mui/icons-material/MoveToInbox"
 import StickyNote2Icon from "@mui/icons-material/StickyNote2"
 import TodayIcon from "@mui/icons-material/Today"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
-import TagIcon from "@mui/icons-material/Tag"
 import DateRangeIcon from "@mui/icons-material/DateRange"
-import { getTags } from "../modules/tagManager"
 import AddIcon from "@mui/icons-material/Add"
 import SettingsIcon from "@mui/icons-material/Settings"
-import { getAllNotesByTagId } from "../modules/noteManager"
 import { login, logout } from "../modules/authManager"
 import Login from "./Login"
-import TagList from "./Tags/TagList"
 import Register from "./Register"
 import TagSideBar from "./Tags/TagSideBar"
 
@@ -104,11 +100,6 @@ const Drawer = styled(MuiDrawer, {
 export default function Navigation({ isLoggedIn }) {
     const theme = useTheme()
     const [open, setOpen] = useState(false)
-    // const [tags, setTags] = useState([])
-
-    // useEffect(() => {
-    //     getTags().then((tags) => setTags(tags))
-    // }, [])
 
     const handleDrawerOpen = () => {
         setOpen(true)
@@ -209,49 +200,51 @@ export default function Navigation({ isLoggedIn }) {
                     </List>
                 )}
                 <Divider />
-                <List>
-                    <ListItem button key="trash">
-                        <ListItemIcon>
-                            <StickyNote2Icon
-                                onClick={() => (window.location.href = "/")}
-                            />
-                        </ListItemIcon>
-                        <ListItemText primary="All Notes" />
-                    </ListItem>
+                {isLoggedIn && (
+                    <List>
+                        <ListItem button key="trash">
+                            <ListItemIcon>
+                                <StickyNote2Icon
+                                    onClick={() => (window.location.href = "/")}
+                                />
+                            </ListItemIcon>
+                            <ListItemText primary="All Notes" />
+                        </ListItem>
 
-                    {isLoggedIn && <TagSideBar />}
-                    <Divider />
-                    <ListItem button key="addTag">
-                        <ListItemIcon>
-                            <AddIcon
-                                onClick={() =>
-                                    (window.location.href = "/addTag")
-                                }
-                            />
-                        </ListItemIcon>
-                        <ListItemText primary="Add Tag" />
-                    </ListItem>
-                    <ListItem button key="managageTag">
-                        <ListItemIcon>
-                            <SettingsIcon
-                                onClick={() =>
-                                    (window.location.href = "/manageTags")
-                                }
-                            />
-                        </ListItemIcon>
-                        <ListItemText primary="Manage Tags" />
-                    </ListItem>
-                </List>
+                        <TagSideBar />
+                        <Divider />
+                        <ListItem button key="addTag">
+                            <ListItemIcon>
+                                <AddIcon
+                                    onClick={() =>
+                                        (window.location.href = "/addTag")
+                                    }
+                                />
+                            </ListItemIcon>
+                            <ListItemText primary="Add Tag" />
+                        </ListItem>
+                        <ListItem button key="managageTag">
+                            <ListItemIcon>
+                                <SettingsIcon
+                                    onClick={() =>
+                                        (window.location.href = "/manageTags")
+                                    }
+                                />
+                            </ListItemIcon>
+                            <ListItemText primary="Manage Tags" />
+                        </ListItem>
+                    </List>
+                )}
             </Drawer>
             <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
-                <>
-                    <DrawerHeader />
-                    {isLoggedIn ? (
+                {isLoggedIn && (
+                    <>
+                        <DrawerHeader />
                         <ApplicationViews />
-                    ) : (
-                        <Redirect to="login" exact />
-                    )}
-                    <main>
+                    </>
+                )}
+                {!isLoggedIn && (
+                    <>
                         <Switch>
                             <Route path="/login">
                                 <Login />
@@ -260,10 +253,8 @@ export default function Navigation({ isLoggedIn }) {
                                 <Register />
                             </Route>
                         </Switch>
-                    </main>
-
-                    {/* // setIsLoggedIn={setIsLoggedIn} */}
-                </>
+                    </>
+                )}
             </Box>
         </Box>
     )

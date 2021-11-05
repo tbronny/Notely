@@ -15,7 +15,7 @@ export default function Tag({ tag }) {
         ) {
             deleteTag(tag.id).then(window.location.reload())
         } else {
-            history.push("/tag")
+            history.push("/manageTags")
         }
     }
 

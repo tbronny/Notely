@@ -29,6 +29,7 @@ import { login, logout } from "../modules/authManager"
 import Login from "./Login"
 import Register from "./Register"
 import TagSideBar from "./Tags/TagSideBar"
+import NoteSearch from "./Notes/NoteSearch"
 
 const drawerWidth = 240
 
@@ -100,6 +101,7 @@ const Drawer = styled(MuiDrawer, {
 export default function Navigation({ isLoggedIn }) {
     const theme = useTheme()
     const [open, setOpen] = useState(false)
+    const [notes, setNotes] = useState([])
 
     const handleDrawerOpen = () => {
         setOpen(true)
@@ -237,10 +239,14 @@ export default function Navigation({ isLoggedIn }) {
                 )}
             </Drawer>
             <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
-                {isLoggedIn && (
+                {isLoggedIn ? (
                     <>
                         <DrawerHeader />
                         <ApplicationViews />
+                    </>
+                ) : (
+                    <>
+                        <Redirect to="login" />
                     </>
                 )}
                 {!isLoggedIn && (

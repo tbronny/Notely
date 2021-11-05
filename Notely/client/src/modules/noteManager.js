@@ -19,6 +19,10 @@ export const getAllNotes = () => {
     })
 }
 
+export const search = (searchTerms) => {
+    return fetch(`${apiUrl}/search?q=${searchTerms}`).then((res) => res.json())
+}
+
 export const getAllUntagged = () => {
     return getToken().then((token) => {
         return fetch(apiUrl + "/GetAllUntagged", {

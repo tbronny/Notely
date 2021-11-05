@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from "react"
 import Note from "./Note"
-import { getAllNotes } from "../../modules/noteManager"
-import { useHistory } from "react-router"
 import FloatingActionButton from "../FloatingActionButton"
-import { Container, Grid } from "@mui/material"
+import { Container } from "@mui/material"
 import { deleteNote } from "../../modules/noteManager"
 import Masonry from "react-masonry-css"
+import NoteSearch from "./NoteSearch"
+import { getAllNotes } from "../../modules/noteManager"
 
 export default function NoteList() {
     const [notes, setNotes] = useState([])
-
-    const history = useHistory()
-
-    const getNotes = () => {
+    useEffect(() => {
         getAllNotes().then((notes) => setNotes(notes))
-    }
+    }, [])
 
     const handleDelete = (noteId) => {
         if (
@@ -22,13 +19,11 @@ export default function NoteList() {
                 `Are you sure you want to delete? Press OK to confirm.`
             )
         ) {
-            deleteNote(noteId).then(getNotes)
+            deleteNote(noteId).then(
+                getAllNotes().then((notes) => setNotes(notes))
+            )
         }
     }
-
-    useEffect(() => {
-        getNotes()
-    }, [])
 
     const breakpoints = {
         default: 3,
@@ -37,19 +32,24 @@ export default function NoteList() {
     }
 
     return (
-        <Container>
-            <Masonry
-                breakpointCols={breakpoints}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-            >
-                {notes.map((n) => (
-                    <div key={n.id}>
-                        <Note note={n} handleDelete={handleDelete} />
-                    </div>
-                ))}
-            </Masonry>
-            {FloatingActionButton()}
-        </Container>
+        <div>
+            <div variant="h5" noWrap component="div">
+                <NoteSearch filteredNotes={setNotes} />
+            </div>
+            <Container>
+                <Masonry
+                    breakpointCols={breakpoints}
+                    className="my-masonry-grid"
+                    columnClassName="my-masonry-grid_column"
+                >
+                    {notes.map((n) => (
+                        <div key={n.id}>
+                            <Note note={n} handleDelete={handleDelete} />
+                        </div>
+                    ))}
+                </Masonry>
+                {FloatingActionButton()}
+            </Container>
+        </div>
     )
 }

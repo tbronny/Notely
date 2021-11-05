@@ -143,6 +143,7 @@ namespace Notely.Controllers
             var currentUser = GetCurrentUserProfileId();
 
             note.UserProfileId = currentUser.Id;
+            note.PublishDateTime = DateTime.Now;
 
             _noteRepository.Add(note);
             return CreatedAtAction("Get", new { id = note.Id }, note);
@@ -158,6 +159,7 @@ namespace Notely.Controllers
             }
             note.UserProfileId = currentUser.Id;
             note.CreateDateTime = DateTime.Now;
+            note.PublishDateTime = DateTime.Now;
 
             _noteRepository.Update(note);
             return NoContent();
@@ -168,6 +170,12 @@ namespace Notely.Controllers
         {
             _noteRepository.Delete(id);
             return NoContent();
+        }
+
+        [HttpGet("search")]
+        public IActionResult Search(string q)
+        {
+            return Ok(_noteRepository.Search(q));
         }
 
         private UserProfile GetCurrentUserProfileId()

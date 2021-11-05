@@ -479,6 +479,77 @@ namespace Notely.Repositories
             }
         }
 
+        public List<Note> Search(string criterion)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    var sql = @"
+                        SELECT n.Id [NoteId], n.Title, n.Content,
+                            n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
+                            u.FirstName, u.LastName, u.Email, 
+                            t.Id [TagId], t.[Name], t.UserProfileId,
+                            nt.NoteId [NoteTagNoteId], nt.TagId [NoteTagId]
+                         FROM Note n
+                            LEFT JOIN UserProfile u ON n.UserProfileId = u.id
+                            LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
+                            LEFT JOIN Tag t On nt.TagId = t.Id
+                        WHERE n.Title LIKE @Criterion OR n.Content LIKE @Criterion";
+
+                    cmd.CommandText = sql;
+                    DbUtils.AddParameter(cmd, "@Criterion", $"%{criterion}%");
+                    var reader = cmd.ExecuteReader();
+
+                    var notes = new List<Note>();
+
+                    while (reader.Read())
+                    {
+                        var noteId = reader.GetInt32(reader.GetOrdinal("NoteId"));
+                        var existingNote = notes.FirstOrDefault(n => n.Id == noteId);
+
+                        if (existingNote == null)
+                        {
+                            existingNote = new Note()
+                            {
+                                Id = noteId,
+                                Title = reader.GetString(reader.GetOrdinal("Title")),
+                                Content = reader.GetString(reader.GetOrdinal("Content")),
+                                CreateDateTime = reader.GetDateTime(reader.GetOrdinal("CreateDateTime")),
+                                PublishDateTime = (DateTime)DbUtils.GetNullableDateTime(reader, "PublishDateTime"),
+
+                                UserProfileId = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                UserProfile = new UserProfile()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("UserProfileId")),
+                                    FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                    LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                                },
+                                Tags = new List<Tag>()
+                            };
+
+                            notes.Add(existingNote);
+                        }
+                        if (DbUtils.IsNotDbNull(reader, "Name"))
+                        {
+                            existingNote.Tags.Add(new Tag()
+                            {
+                                Id = DbUtils.GetInt(reader, "TagId"),
+                                Name = DbUtils.GetString(reader, "Name")
+                            });
+                        }
+
+                    }
+
+                    reader.Close();
+
+                    return notes;
+                }
+            }
+        }
+
 
         private Note NewNoteFromReader(SqlDataReader reader)
         {

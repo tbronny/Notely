@@ -156,22 +156,15 @@ export default function NoteForm() {
                     Close
                 </Button>
             </Dialog>
-            <TextField
-                type="text"
-                name="title"
-                id="title"
-                placeholder="Title"
-                value={note.title}
-                onChange={handleInputChange}
-            />
-            <TextField
-                type="date"
-                name="publishDateTime"
-                id="publishDateTime"
-                valid={note.publishDateTime}
-                onChange={handleInputChange}
-            />
             <FormControl fullWidth>
+                <TextField
+                    type="text"
+                    name="title"
+                    id="title"
+                    placeholder="Title"
+                    value={note.title}
+                    onChange={handleInputChange}
+                />
                 <TextField
                     rows={20}
                     multiline

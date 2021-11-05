@@ -12,12 +12,9 @@ import { Link, useHistory } from "react-router-dom"
 
 import parse from "html-react-parser"
 import { DeleteOutlined } from "@mui/icons-material"
-import TagIcon from "@mui/icons-material/Tag"
 
 export default function Note({ note, handleDelete }) {
     const history = useHistory()
-
-    // <Link to={`/note/edit/${note.id}`}>{note.title}</Link>
 
     return (
         <div>

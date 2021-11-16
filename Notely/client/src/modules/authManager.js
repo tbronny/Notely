@@ -1,5 +1,7 @@
 import firebase from "firebase/app"
 import "firebase/auth"
+import { Redirect } from "react-router"
+import { Link } from "react-router-dom"
 
 const _apiUrl = "/api/userprofile"
 
@@ -51,7 +53,10 @@ export const login = (email, pw) => {
 }
 
 export const logout = () => {
-    return firebase.auth().signOut()
+    return firebase
+        .auth()
+        .signOut()
+        .then((window.location.href = "/login"))
 }
 
 export const register = (userProfile, password) => {

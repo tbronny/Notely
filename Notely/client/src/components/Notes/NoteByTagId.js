@@ -39,7 +39,7 @@ export default function NoteByTagId() {
             <div variant="h5" noWrap component="div">
                 <NoteSearch filteredNotes={setNotes} />
             </div>
-            <Container>
+            <Container sx={{ mt: 5 }}>
                 <Masonry
                     breakpointCols={breakpoints}
                     className="my-masonry-grid"

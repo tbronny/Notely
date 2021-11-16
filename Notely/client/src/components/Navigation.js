@@ -239,14 +239,10 @@ export default function Navigation({ isLoggedIn }) {
                 )}
             </Drawer>
             <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
-                {isLoggedIn ? (
+                {isLoggedIn && (
                     <>
                         <DrawerHeader />
                         <ApplicationViews />
-                    </>
-                ) : (
-                    <>
-                        <Redirect to="login" />
                     </>
                 )}
                 {!isLoggedIn && (
@@ -261,6 +257,19 @@ export default function Navigation({ isLoggedIn }) {
                         </Switch>
                     </>
                 )}
+
+                {/* {!isLoggedIn && (
+                    <>
+                        <Switch>
+                            <Route path="/login">
+                                <Login />
+                            </Route>
+                            <Route path="/register">
+                                <Register />
+                            </Route>
+                        </Switch>
+                    </>
+                )} */}
             </Box>
         </Box>
     )

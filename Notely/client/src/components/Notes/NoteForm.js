@@ -59,6 +59,10 @@ export default function NoteForm() {
         setNote(noteCopy)
     }
 
+    const handleDialogOpen = () => {
+        setDialog(true)
+    }
+
     const handleDeleteDialogClose = () => {
         setDeleteDialog(false)
     }
@@ -188,12 +192,20 @@ export default function NoteForm() {
                 {noteId ? "Update" : "Add Note"}
             </Button>
             {noteId && (
-                <Button
-                    className="btn btn-primary"
-                    onClick={handleOpenDeleteTag}
-                >
-                    Remove Tag
-                </Button>
+                <>
+                    <Button
+                        className="btn btn-primary"
+                        onClick={handleOpenDeleteTag}
+                    >
+                        Remove Tag
+                    </Button>
+                    <Button
+                        className="btn btn-primary"
+                        onClick={handleDialogOpen}
+                    >
+                        Add Tag
+                    </Button>
+                </>
             )}
         </Grid>
     )

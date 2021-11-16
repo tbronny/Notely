@@ -9,7 +9,13 @@ export const getTags = () => {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
-        }).then((res) => res.json())
+        }).then((res) => {
+            if (res.ok) {
+                return res.json()
+            } else {
+                throw new Error("ERROR IN GETTING TAGS")
+            }
+        })
     })
 }
 

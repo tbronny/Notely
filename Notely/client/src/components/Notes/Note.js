@@ -12,6 +12,7 @@ import { Link, useHistory } from "react-router-dom"
 import { red } from "@mui/material/colors"
 import parse from "html-react-parser"
 import { DeleteOutlined } from "@mui/icons-material"
+import ReactMarkdown from "react-markdown"
 
 export default function Note({ note, handleDelete }) {
     const history = useHistory()
@@ -44,7 +45,8 @@ export default function Note({ note, handleDelete }) {
                                 return history.push(`/note/edit/${note.id}`)
                         }}
                     >
-                        <p>{parse(note.content)}</p>
+                        {/* <p>{parse(note.content)}</p> */}
+                        <ReactMarkdown>{parse(note.content)}</ReactMarkdown>
                     </Typography>
                 </CardContent>
             </Card>

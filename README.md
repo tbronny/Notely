@@ -2,7 +2,7 @@
 Notely is a Full-Stack note taking application that gives users the ability to find notes through many filters such as "Todays Notes" and "Last 30 Days". This application is produced with a .NET web api  and React front end framework.
 
 ### Get Started
-First, you will need a Visual Studio and Visual Studio Code.
+First, you will need Visual Studio and Visual Studio Code.
 - Clone this repository and cd into the directory in creates
 `git clone git@github.com:tbronny/Notely.git
 cd Notely/`

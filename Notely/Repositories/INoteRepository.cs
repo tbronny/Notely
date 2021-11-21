@@ -17,6 +17,6 @@ namespace Notely.Repositories
         void Add(Note note);
         void Update(Note note);
         void Delete(int id);
-        List<Note> Search(string criterion);
+        List<Note> Search(int userId, string criterion);
     }
 }

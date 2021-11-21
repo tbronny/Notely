@@ -169,7 +169,7 @@ namespace Notely.Repositories
                        SELECT n.Id, n.Title, n.Content,
                               n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
                               u.FirstName, u.LastName, u.Email, 
-                              t.Id, t.[Name], nt.NoteId, nt.TagId
+                              t.Id [notesTagId], t.[Name], nt.NoteId, nt.TagId
                          FROM Note n
                               LEFT JOIN UserProfile u ON n.UserProfileId = u.id
                                 LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
@@ -215,6 +215,7 @@ namespace Notely.Repositories
                         {
                             existingNote.Tags.Add(new Tag()
                             {
+                                Id = DbUtils.GetInt(reader, "notesTagId"),
                                 Name = DbUtils.GetString(reader, "Name")
                             });
                         }
@@ -239,7 +240,7 @@ namespace Notely.Repositories
                        SELECT n.Id, n.Title, n.Content,
                               n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
                               u.FirstName, u.LastName, u.Email, 
-                              t.Id, t.[Name], nt.NoteId, nt.TagId
+                              t.Id [notesTagId], t.[Name], nt.NoteId, nt.TagId
                          FROM Note n
                               LEFT JOIN UserProfile u ON n.UserProfileId = u.id
                                 LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
@@ -285,6 +286,7 @@ namespace Notely.Repositories
                         {
                             existingNote.Tags.Add(new Tag()
                             {
+                                Id = DbUtils.GetInt(reader, "notesTagId"),
                                 Name = DbUtils.GetString(reader, "Name")
                             });
                         }
@@ -308,7 +310,7 @@ namespace Notely.Repositories
                     cmd.CommandText = @"
                        SELECT n.Id, n.Title, n.Content, 
                               n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
-                              u.FirstName, u.LastName, u.Email, t.[Name], nt.Id [NoteTagId]
+                              u.FirstName, u.LastName, u.Email, t.Id [notesTagId], t.[Name], nt.Id [NoteTagId]
                          FROM Note n
                               LEFT JOIN UserProfile u ON n.UserProfileId = u.id
                                 LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
@@ -332,6 +334,7 @@ namespace Notely.Repositories
                         {
                             note.Tags.Add(new Tag
                             {
+                                Id = DbUtils.GetInt(reader, "notesTagId"),
                                 Name = DbUtils.GetString(reader, "Name")
                             });
                         }
@@ -479,7 +482,7 @@ namespace Notely.Repositories
             }
         }
 
-        public List<Note> Search(string criterion)
+        public List<Note> Search(int userId, string criterion)
         {
             using (var conn = Connection)
             {
@@ -489,16 +492,17 @@ namespace Notely.Repositories
                     var sql = @"
                         SELECT n.Id [NoteId], n.Title, n.Content,
                             n.CreateDateTime, n.PublishDateTime, n.UserProfileId,
-                            u.FirstName, u.LastName, u.Email, 
+                            u.Id, u.FirstName, u.LastName, u.Email, 
                             t.Id [TagId], t.[Name], t.UserProfileId,
                             nt.NoteId [NoteTagNoteId], nt.TagId [NoteTagId]
                          FROM Note n
                             LEFT JOIN UserProfile u ON n.UserProfileId = u.id
                             LEFT JOIN NoteTag nt ON n.Id = nt.NoteId
                             LEFT JOIN Tag t On nt.TagId = t.Id
-                        WHERE n.Title LIKE @Criterion OR n.Content LIKE @Criterion";
+                        WHERE u.Id = @Id AND (n.Title LIKE @Criterion OR n.Content LIKE @Criterion)";
 
                     cmd.CommandText = sql;
+                    DbUtils.AddParameter(cmd, "@Id", userId);
                     DbUtils.AddParameter(cmd, "@Criterion", $"%{criterion}%");
                     var reader = cmd.ExecuteReader();
 

@@ -175,7 +175,8 @@ namespace Notely.Controllers
         [HttpGet("search")]
         public IActionResult Search(string q)
         {
-            return Ok(_noteRepository.Search(q));
+            var currentUser = GetCurrentUserProfileId();
+            return Ok(_noteRepository.Search(currentUser.Id, q));
         }
 
         private UserProfile GetCurrentUserProfileId()

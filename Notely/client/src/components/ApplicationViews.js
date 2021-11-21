@@ -4,6 +4,7 @@ import App from "../Notely"
 import Login from "./Login"
 import NoteByMonth from "./Notes/NoteByMonth"
 import NoteByTagId from "./Notes/NoteByTagId"
+import NoteDetails from "./Notes/NoteDetails"
 import NoteForm from "./Notes/NoteForm"
 import NoteList from "./Notes/NoteList"
 import TodaysNotes from "./Notes/TodaysNotes"
@@ -30,6 +31,9 @@ export default function ApplicationViews() {
                 </Route>
                 <Route path="/GetByTag/:tagId" exact>
                     <NoteByTagId />
+                </Route>
+                <Route path="/note/:id" exact>
+                    <NoteDetails />
                 </Route>
                 <Route path="/addNote" exact>
                     <NoteForm />

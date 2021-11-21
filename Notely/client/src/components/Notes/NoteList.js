@@ -31,12 +31,15 @@ export default function NoteList() {
         700: 1,
     }
 
-    return (
-        <div>
-            <div variant="h5" noWrap component="div">
-                <NoteSearch filteredNotes={setNotes} />
-            </div>
-            <Container sx={{ mt: 5 }}>
+    const ConditionalRender = () => {
+        if (notes.length < 1) {
+            return (
+                <div className="message">
+                    <h4>You have no notes</h4>
+                </div>
+            )
+        } else {
+            return (
                 <Masonry
                     breakpointCols={breakpoints}
                     className="my-masonry-grid"
@@ -48,6 +51,17 @@ export default function NoteList() {
                         </div>
                     ))}
                 </Masonry>
+            )
+        }
+    }
+
+    return (
+        <div>
+            <div variant="h5" noWrap component="div">
+                <NoteSearch filteredNotes={setNotes} />
+            </div>
+            <Container sx={{ mt: 5 }}>
+                {ConditionalRender()}
                 {FloatingActionButton()}
             </Container>
         </div>

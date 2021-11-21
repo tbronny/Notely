@@ -20,7 +20,20 @@ export const getAllNotes = () => {
 }
 
 export const search = (searchTerms) => {
-    return fetch(`${apiUrl}/search?q=${searchTerms}`).then((res) => res.json())
+    return getToken().then((token) => {
+        return fetch(`${apiUrl}/search?q=${searchTerms}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then((res) => {
+            if (res.ok) {
+                return res.json()
+            } else {
+                throw new Error("ERROR IN GETTING Notes")
+            }
+        })
+    })
 }
 
 export const getAllUntagged = () => {

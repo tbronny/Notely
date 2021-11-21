@@ -42,10 +42,9 @@ export default function Note({ note, handleDelete }) {
                         color="textSecondary"
                         onClick={(event) => {
                             if (event.target !== event.currentTarget)
-                                return history.push(`/note/edit/${note.id}`)
+                                return history.push(`/note/${note.id}`)
                         }}
                     >
-                        {/* <p>{parse(note.content)}</p> */}
                         <ReactMarkdown>{parse(note.content)}</ReactMarkdown>
                     </Typography>
                 </CardContent>

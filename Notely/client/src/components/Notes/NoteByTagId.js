@@ -34,12 +34,15 @@ export default function NoteByTagId() {
         700: 1,
     }
 
-    return (
-        <div>
-            <div variant="h5" noWrap component="div">
-                <NoteSearch filteredNotes={setNotes} />
-            </div>
-            <Container sx={{ mt: 5 }}>
+    const ConditionalRender = () => {
+        if (notes.length < 1) {
+            return (
+                <div className="message">
+                    <p>No notes exist with this tag!</p>
+                </div>
+            )
+        } else {
+            return (
                 <Masonry
                     breakpointCols={breakpoints}
                     className="my-masonry-grid"
@@ -51,6 +54,17 @@ export default function NoteByTagId() {
                         </div>
                     ))}
                 </Masonry>
+            )
+        }
+    }
+
+    return (
+        <div>
+            <div variant="h5" noWrap component="div">
+                <NoteSearch filteredNotes={setNotes} />
+            </div>
+            <Container sx={{ mt: 5 }}>
+                {ConditionalRender()}
                 {FloatingActionButton()}
             </Container>
         </div>

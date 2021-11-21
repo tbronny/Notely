@@ -52,10 +52,6 @@ export default function NoteForm() {
         const noteCopy = { ...note }
         noteCopy[e.target.id] = e.target.value
 
-        if (noteId && noteCopy.content && noteCopy.content.includes("#")) {
-            setDialog(true)
-        }
-
         setNote(noteCopy)
     }
 
@@ -70,11 +66,6 @@ export default function NoteForm() {
     const handleDialogClose = () => {
         setDialog(false)
     }
-
-    // const editorInputChange = (event, editor) => {
-    //     const data = editor.getData()
-    //     setText(data)
-    // }
 
     const handleTagSave = (tagId) => {
         if (noteId) {
@@ -135,12 +126,26 @@ export default function NoteForm() {
                         </ListItem>
                     </List>
                 ))}
+                Existing Tags:
+                {note.tags?.map((tag) => (
+                    <List>
+                        <ListItem
+                            button
+                            onClick={() => handleTagDelete(noteId, tag.id)}
+                        >
+                            <ListItemIcon>
+                                <TagIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={tag.name} />
+                        </ListItem>
+                    </List>
+                ))}
                 <Button className="dialog-button" onClick={handleDialogClose}>
                     Close
                 </Button>
             </Dialog>
             <Dialog className="privateDialog" open={deleteDialog}>
-                {tags.map((tag) => (
+                {note.tags?.map((tag) => (
                     <List>
                         <ListItem
                             button
@@ -179,14 +184,6 @@ export default function NoteForm() {
                     value={note.content}
                     onChange={handleInputChange}
                 />
-                {/* <CKEditor
-                    editor={ClassicEditor}
-                    id="content"
-                    placeholder="Start writing..."
-                    data={text}
-                    value={text}
-                    onChange={editorInputChange}
-                /> */}
             </FormControl>
             <Button className="btn btn-primary" onClick={handleSave}>
                 {noteId ? "Update" : "Add Note"}

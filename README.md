@@ -3,7 +3,7 @@ Notely is a Full-Stack note taking application that gives users the ability to f
 
 ### Get Started
 First, you will need Visual Studio and Visual Studio Code.
-- Clone this repository and cd into the directory in creates
+- Clone this repository and cd into the directory it creates
 `git clone git@github.com:tbronny/Notely.git
 cd Notely/`
 - Run `start Notely.sln` in terminal to open project solution

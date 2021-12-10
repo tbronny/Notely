@@ -48,7 +48,7 @@ const NoteDetails = () => {
                     />
                     <CardContent>
                         <Typography varient="body2" color="textSecondary">
-                            {note.content.includes("youtube") ? (
+                            {note.content.includes("embed") ? (
                                 <div>
                                     <iframe
                                         className="video"

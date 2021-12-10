@@ -34,6 +34,7 @@ namespace Notely.Controllers
             }
 
             var notes = _noteRepository.GetAll(user.Id);
+
             return Ok(notes);
         }
 
@@ -117,6 +118,7 @@ namespace Notely.Controllers
             {
                 return NotFound();
             }
+            
             return Ok(note);
         }
 
@@ -144,6 +146,37 @@ namespace Notely.Controllers
 
             note.UserProfileId = currentUser.Id;
             note.PublishDateTime = DateTime.Now;
+
+            try
+            {
+                // Handle the video URL
+
+                // A valid video link might look like this:
+                //  https://www.youtube.com/watch?v=sstOXCQ-EG0&list=PLdo4fOcmZ0oVGRpRwbMhUA0KAvMA2mLyN
+                // 
+                // Our job is to pull out the "v=XXXXX" part to get the get the "code/id" of the video
+                //  So we can construct an URL that's appropriate for embedding a video
+
+                // An embeddable Video URL looks something like this:
+                //  https://www.youtube.com/embed/sstOXCQ-EG0
+
+                // If this isn't a YouTube video, we should just give up
+                if (!note.Content.Contains("youtube"))
+                {
+                    return BadRequest();
+                }
+
+                // If it's not already an embeddable URL, we have some work to do
+                if (!note.Content.Contains("embed"))
+                {
+                    var videoCode = note.Content.Split("v=")[1].Split("&")[0];
+                    note.Content = $"https://www.youtube.com/embed/{videoCode}";
+                }
+            }
+            catch // Something went wrong while creating the embeddable url
+            {
+                return BadRequest();
+            }
 
             _noteRepository.Add(note);
             return CreatedAtAction("Get", new { id = note.Id }, note);

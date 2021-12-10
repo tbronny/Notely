@@ -103,7 +103,7 @@ export default function NoteForm() {
         } else {
             addNote({
                 title: note.title,
-                content: note.content,
+                content: parse(note.content),
                 createDateTime: note.createDateTime,
                 publishDateTime: note.publishDateTime,
                 userId: note.userId,

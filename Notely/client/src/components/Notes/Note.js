@@ -13,13 +13,14 @@ import { red } from "@mui/material/colors"
 import parse from "html-react-parser"
 import { DeleteOutlined } from "@mui/icons-material"
 import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 export default function Note({ note, handleDelete }) {
     const history = useHistory()
 
     return (
         <div>
-            <Card elevation={1} className="noteCard">
+            <Card elevation={5} className="noteCard">
                 <CardHeader
                     action={
                         <IconButton
@@ -45,7 +46,9 @@ export default function Note({ note, handleDelete }) {
                                 return history.push(`/note/${note.id}`)
                         }}
                     >
-                        <ReactMarkdown>{parse(note.content)}</ReactMarkdown>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {parse(note.content)}
+                        </ReactMarkdown>
                     </Typography>
                 </CardContent>
             </Card>

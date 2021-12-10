@@ -257,19 +257,6 @@ export default function Navigation({ isLoggedIn }) {
                         </Switch>
                     </>
                 )}
-
-                {/* {!isLoggedIn && (
-                    <>
-                        <Switch>
-                            <Route path="/login">
-                                <Login />
-                            </Route>
-                            <Route path="/register">
-                                <Register />
-                            </Route>
-                        </Switch>
-                    </>
-                )} */}
             </Box>
         </Box>
     )
